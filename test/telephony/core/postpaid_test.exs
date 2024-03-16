@@ -1,6 +1,6 @@
 defmodule Telephony.Core.PostpaidTest do
   use ExUnit.Case
-  alias Telephony.Core.{Call, Postpaid, Recharge, Subscriber}
+  alias Telephony.Core.{Call, Postpaid, Subscriber}
 
   setup do
     subscriber =
@@ -14,25 +14,25 @@ defmodule Telephony.Core.PostpaidTest do
     %{subscriber: subscriber}
   end
 
-  # test "Make a Call", %{subscriber: subscriber} do
-  #   time_spent = 2
-  #   date = NaiveDateTime.utc_now()
-  #   result = Postpaid.make_call(subscriber, time_spent, date)
+  test "Make a Call", %{subscriber: subscriber} do
+    time_spent = 2
+    date = NaiveDateTime.utc_now()
+    result = Postpaid.make_call(subscriber, time_spent, date)
 
-  #   expect = %Subscriber{
-  #     full_name: "Hashe",
-  #     phone_number: "123",
-  #     subscriber_type: %Postpaid{credits: 7.1, recharges: []},
-  #     calls: [
-  #       %Call{
-  #         time_spent: 2,
-  #         date: date
-  #       }
-  #     ]
-  #   }
+    expect = %Subscriber{
+      full_name: "Hashe",
+      phone_number: "123",
+      subscriber_type: %Postpaid{spent: 2.08},
+      calls: [
+        %Call{
+          time_spent: 2,
+          date: date
+        }
+      ]
+    }
 
-  #   assert expect == result
-  # end
+    assert expect == result
+  end
 
   # test "Make a Call with no credits", %{subscriber_without_credits: subscriber} do
   #   time_spent = 2
