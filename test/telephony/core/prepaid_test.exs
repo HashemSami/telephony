@@ -103,24 +103,29 @@ defmodule Telephony.Core.PrepaidTest do
     year = 2024
     month = 2
 
-    assert Invoice.print(subscriber.subscriber_type, subscriber.calls, year, month) == %{
-             calls: [
-               %{
-                 time_spent: 10,
-                 # 10 * 1.45 (time spent * min price)
-                 value_spent: 14.5,
-                 date: last_month
-               },
-               %{
-                 time_spent: 20,
-                 value_spent: 29.0,
-                 date: last_month
-               }
-             ],
-             recharges: [
-               %{credits: 100, date: last_month},
-               %{credits: 100, date: last_month}
-             ]
-           }
+    result = Invoice.print(subscriber.subscriber_type, subscriber.calls, year, month)
+
+    expect = %{
+      calls: [
+        %{
+          time_spent: 10,
+          # 10 * 1.45 (time spent * min price)
+          value_spent: 14.5,
+          date: last_month
+        },
+        %{
+          time_spent: 20,
+          value_spent: 29.0,
+          date: last_month
+        }
+      ],
+      recharges: [
+        %{credits: 100, date: last_month},
+        %{credits: 100, date: last_month}
+      ],
+      credits: 253.6
+    }
+
+    assert result == expect
   end
 end
