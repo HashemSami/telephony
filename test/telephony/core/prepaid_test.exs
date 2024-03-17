@@ -1,6 +1,6 @@
 defmodule Telephony.Core.PrepaidTest do
   use ExUnit.Case
-  alias Telephony.Core.{Call, Prepaid, Recharge, Subscriber}
+  alias Telephony.Core.{Call, Prepaid, Invoice, Recharge, Subscriber}
 
   setup do
     subscriber =
@@ -67,5 +67,60 @@ defmodule Telephony.Core.PrepaidTest do
     }
 
     assert expect == result
+  end
+
+  test "Print invoice" do
+    date = ~D[2024-03-17]
+    last_month = ~D[2024-02-15]
+
+    subscriber = %Subscriber{
+      full_name: "Hashe",
+      phone_number: "123",
+      subscriber_type: %Prepaid{
+        credits: 253.6,
+        recharges: [
+          %Recharge{value: 100, date: date},
+          %Recharge{value: 100, date: last_month},
+          %Recharge{value: 100, date: last_month}
+        ]
+      },
+      calls: [
+        %Call{
+          time_spent: 2,
+          date: date
+        },
+        %Call{
+          time_spent: 10,
+          date: last_month
+        },
+        %Call{
+          time_spent: 20,
+          date: last_month
+        }
+      ]
+    }
+
+    year = 2024
+    month = 2
+
+    assert Invoice.print(subscriber.subscriber_type, subscriber.calls, year, month) == %{
+             calls: [
+               %{
+                 time_spent: 10,
+                 # 10 * 1.45 (time spent * min price)
+                 value_spent: 14.5,
+                 date: last_month
+               },
+               %{
+                 time_spent: 20,
+                 value_spent: 29.0,
+                 date: last_month
+               }
+             ],
+             recharges: [
+               %{credits: 100, date: last_month},
+               %{credits: 100, date: last_month}
+             ]
+           }
   end
 end

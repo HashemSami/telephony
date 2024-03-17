@@ -1,5 +1,5 @@
 defmodule Telephony.Core.Prepaid do
-  alias Telephony.Core.{Call, Recharge, Subscriber}
+  alias Telephony.Core.{Call, Invoice, Recharge, Subscriber}
 
   defstruct credits: 0, recharges: []
   @price_per_minute 1.45
@@ -62,5 +62,28 @@ defmodule Telephony.Core.Prepaid do
     new_recharges = subscriber_type.recharges ++ [Recharge.new(value, date)]
     subscriber_type = %{subscriber_type | recharges: new_recharges}
     %{subscriber | subscriber_type: subscriber_type}
+  end
+
+  defimpl Invoice, for: Telephony.Core.Prepaid do
+    @price_per_minute 1.45
+
+    def print(subscriber_type, calls, year, month) do
+      %{
+        recharges:
+          subscriber_type.recharges
+          |> Enum.filter(&(&1.date.month == month && &1.date.year == year))
+          |> Enum.map(&%{date: &1.date, credits: &1.value}),
+        calls:
+          calls
+          |> Enum.filter(&(&1.date.month == month && &1.date.year == year))
+          |> Enum.map(
+            &%{
+              date: &1.date,
+              time_spent: &1.time_spent,
+              value_spent: &1.time_spent * @price_per_minute
+            }
+          )
+      }
+    end
   end
 end
