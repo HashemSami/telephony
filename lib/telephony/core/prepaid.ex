@@ -1,44 +1,7 @@
 defmodule Telephony.Core.Prepaid do
-  alias Telephony.Core.{Call, Invoice, Recharge, Subscriber}
+  alias Telephony.Core.{Call, Recharge}
 
   defstruct credits: 0, recharges: []
-  @price_per_minute 1.45
-  def make_call(
-        %Subscriber{subscriber_type: %__MODULE__{} = subscriber_type} = subscriber,
-        time_spent,
-        date
-      ) do
-    if is_subscriber_has_credits(subscriber_type, time_spent) do
-      subscriber
-      |> update_credits(time_spent)
-      |> add_new_call(
-        time_spent,
-        date
-      )
-    else
-      {:error, "Subscriber does not have enough credits"}
-    end
-  end
-
-  defp is_subscriber_has_credits(subscriber_type, time_spent) do
-    subscriber_type.credits > @price_per_minute * time_spent
-  end
-
-  defp update_credits(
-         %Subscriber{subscriber_type: %__MODULE__{} = subscriber_type} = subscriber,
-         time_spent
-       ) do
-    credit_spent = @price_per_minute * time_spent
-
-    subscriber_type = %{subscriber_type | credits: subscriber_type.credits - credit_spent}
-
-    %{subscriber | subscriber_type: subscriber_type}
-  end
-
-  defp add_new_call(%Subscriber{calls: calls} = subscriber, time_spent, date) do
-    new_calls = calls ++ [Call.new(time_spent, date)]
-    %{subscriber | calls: new_calls}
-  end
 
   def make_recharge(subscriber, value, date) do
     subscriber
@@ -47,7 +10,8 @@ defmodule Telephony.Core.Prepaid do
   end
 
   defp charge_credit(
-         %Subscriber{subscriber_type: %__MODULE__{} = subscriber_type} = subscriber,
+         %Telephony.Core.Subscriber{subscriber_type: %__MODULE__{} = subscriber_type} =
+           subscriber,
          value
        ) do
     subscriber_type = %{subscriber_type | credits: subscriber_type.credits + value}
@@ -55,7 +19,8 @@ defmodule Telephony.Core.Prepaid do
   end
 
   defp add_recharge_data(
-         %Subscriber{subscriber_type: %__MODULE__{} = subscriber_type} = subscriber,
+         %Telephony.Core.Subscriber{subscriber_type: %__MODULE__{} = subscriber_type} =
+           subscriber,
          value,
          date
        ) do
@@ -64,10 +29,10 @@ defmodule Telephony.Core.Prepaid do
     %{subscriber | subscriber_type: subscriber_type}
   end
 
-  defimpl Invoice, for: Telephony.Core.Prepaid do
+  defimpl Subscriber, for: Telephony.Core.Prepaid do
     @price_per_minute 1.45
 
-    def print(%{recharges: recharges, credits: credits}, calls, year, month) do
+    def print_invoice(%{recharges: recharges, credits: credits}, calls, year, month) do
       %{
         recharges:
           recharges
@@ -85,6 +50,41 @@ defmodule Telephony.Core.Prepaid do
           ),
         credits: credits
       }
+    end
+
+    def make_call(
+          subscriber_type,
+          time_spent,
+          date
+        ) do
+      if is_subscriber_has_credits(subscriber_type, time_spent) do
+        subscriber_type
+        |> update_credits(time_spent)
+        |> add_new_call(
+          time_spent,
+          date
+        )
+      else
+        {:error, "Subscriber does not have enough credits"}
+      end
+    end
+
+    defp is_subscriber_has_credits(subscriber_type, time_spent) do
+      subscriber_type.credits > @price_per_minute * time_spent
+    end
+
+    defp update_credits(
+           subscriber_type,
+           time_spent
+         ) do
+      credit_spent = @price_per_minute * time_spent
+
+      %{subscriber_type | credits: subscriber_type.credits - credit_spent}
+    end
+
+    defp add_new_call(subscriber_type, time_spent, date) do
+      call = Call.new(time_spent, date)
+      {subscriber_type, call}
     end
   end
 end

@@ -1,3 +1,8 @@
+defprotocol Subscriber do
+  def print_invoice(subscriber_type, calls, year, month)
+  def make_call(subscriber_type, time_spent, date)
+end
+
 defmodule Telephony.Core.Subscriber do
   alias Telephony.Core.{Postpaid, Prepaid}
 
@@ -25,7 +30,7 @@ defmodule Telephony.Core.Subscriber do
         time_spent,
         date
       ) do
-    Postpaid.make_call(postpaid, time_spent, date)
+    Subscriber.make_call(postpaid, time_spent, date)
   end
 
   def make_call(
@@ -33,7 +38,7 @@ defmodule Telephony.Core.Subscriber do
         time_spent,
         date
       ) do
-    Prepaid.make_call(postpaid, time_spent, date)
+    Subscriber.make_call(postpaid, time_spent, date)
   end
 
   def make_recharge(
