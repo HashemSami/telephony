@@ -29,21 +29,26 @@ defmodule Telephony.Core.Postpaid do
 
   defimpl Invoice, for: Telephony.Core.Postpaid do
     @price_per_minute 1.04
-    def print(%{spent: spent}, calls, year, month) do
+    def print(_, calls, year, month) do
       calls_data =
-        calls
-        |> Enum.filter(&(&1.date.month == month && &1.date.year == year))
-        |> Enum.map(
-          &%{
-            time_spent: &1.time_spent,
-            value_spent: &1.time_spent * @price_per_minute,
-            date: &1.date
-          }
-        )
+        Enum.reduce(calls, [], fn current, acc ->
+          if current.date.month == month && current.date.year == year do
+            call =
+              %{
+                time_spent: current.time_spent,
+                value_spent: (current.time_spent * @price_per_minute) |> Float.round(2),
+                date: current.date
+              }
+
+            acc ++ [call]
+          else
+            acc
+          end
+        end)
 
       %{
         value_spent: Enum.reduce(calls_data, 0, &(&1.value_spent + &2)),
-        calls: calls
+        calls: calls_data
       }
     end
   end

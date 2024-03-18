@@ -30,6 +30,7 @@ defmodule Telephony.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:decimal, "~> 2.0"},
       # testing
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.18", only: :test},

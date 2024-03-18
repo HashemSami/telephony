@@ -1,6 +1,6 @@
 defmodule Telephony.Core.PostpaidTest do
   use ExUnit.Case
-  alias Telephony.Core.{Call, Postpaid, Subscriber}
+  alias Telephony.Core.{Call, Postpaid, Invoice, Subscriber}
 
   setup do
     subscriber =
@@ -34,7 +34,7 @@ defmodule Telephony.Core.PostpaidTest do
     assert expect == result
   end
 
-  test "Print Invoice", %{subscriber: subscriber} do
+  test "Print Invoice" do
     date = ~D[2024-03-17]
     last_month = ~D[2024-02-15]
 
@@ -63,17 +63,19 @@ defmodule Telephony.Core.PostpaidTest do
 
     result = Invoice.print(subscriber.subscriber_type, subscriber.calls, year, month)
 
+    IO.inspect(result)
+
     expect = %{
-      value_spent: 80 * 1.04,
+      value_spent: (80 * 1.04) |> Float.round(2),
       calls: [
         %{
           time_spent: 50,
-          value_spent: 50 * 1.04,
+          value_spent: (50 * 1.04) |> Float.round(2),
           date: last_month
         },
         %{
           time_spent: 30,
-          value_spent: 30 * 1.04,
+          value_spent: (30 * 1.04) |> Float.round(2),
           date: last_month
         }
       ]
