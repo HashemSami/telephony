@@ -1,6 +1,7 @@
 defprotocol Subscriber do
   def print_invoice(subscriber_type, calls, year, month)
   def make_call(subscriber_type, time_spent, date)
+  def make_recharge(subscriber_type, value, date)
 end
 
 defmodule Telephony.Core.Subscriber do
@@ -42,11 +43,11 @@ defmodule Telephony.Core.Subscriber do
   end
 
   def make_recharge(
-        %__MODULE__{subscriber_type: %Prepaid{} = _subscriber_type} = postpaid,
+        %__MODULE__{subscriber_type: %Prepaid{} = _subscriber_type} = prepaid,
         value,
         date
       ) do
-    Prepaid.make_recharge(postpaid, value, date)
+    Subscriber.make_recharge(prepaid, value, date)
   end
 
   def make_recharge(

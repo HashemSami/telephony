@@ -49,5 +49,9 @@ defmodule Telephony.Core.Postpaid do
       call = Call.new(time_spent, date)
       {subscriber_type, call}
     end
+
+    def make_recharge(_subscriber_type, _value, _date) do
+      {:error, "Only prepaid can make a recharge"}
+    end
   end
 end

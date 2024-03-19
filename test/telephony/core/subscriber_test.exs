@@ -1,16 +1,16 @@
 defmodule Telephony.Core.SubscriberTest do
   use ExUnit.Case
-  alias Telephony.Core.{Call, Postpaid, Prepaid, Recharge, Subscriber}
+  alias Telephony.Core.{Call, Postpaid, Prepaid, Recharge}
 
   setup do
-    postpaid = %Subscriber{
+    postpaid = %Telephony.Core.Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Postpaid{spent: 0},
       calls: []
     }
 
-    prepaid = %Subscriber{
+    prepaid = %Telephony.Core.Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Prepaid{credits: 10, recharges: []},
@@ -29,9 +29,9 @@ defmodule Telephony.Core.SubscriberTest do
     }
 
     # when
-    result = Subscriber.new(payload)
+    result = Telephony.Core.Subscriber.new(payload)
 
-    expect = %Subscriber{
+    expect = %Telephony.Core.Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Prepaid{credits: 0, recharges: []}
@@ -50,9 +50,9 @@ defmodule Telephony.Core.SubscriberTest do
     }
 
     # when
-    result = Subscriber.new(payload)
+    result = Telephony.Core.Subscriber.new(payload)
 
-    expect = %Subscriber{
+    expect = %Telephony.Core.Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Postpaid{spent: 0},
@@ -70,7 +70,7 @@ defmodule Telephony.Core.SubscriberTest do
     # when
     result = Subscriber.make_call(postpaid, time_spent, date)
 
-    expect = %Subscriber{
+    expect = %Telephony.Core.Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Postpaid{spent: 2.08},
@@ -92,7 +92,7 @@ defmodule Telephony.Core.SubscriberTest do
 
     result = Subscriber.make_call(prepaid, time_spent, date)
 
-    expect = %Subscriber{
+    expect = %Telephony.Core.Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Prepaid{credits: 7.1, recharges: []},
@@ -114,7 +114,7 @@ defmodule Telephony.Core.SubscriberTest do
 
     result = Subscriber.make_recharge(prepaid, value, date)
 
-    expect = %Subscriber{
+    expect = %Telephony.Core.Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Prepaid{

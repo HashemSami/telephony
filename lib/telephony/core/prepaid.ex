@@ -3,32 +3,6 @@ defmodule Telephony.Core.Prepaid do
 
   defstruct credits: 0, recharges: []
 
-  def make_recharge(subscriber, value, date) do
-    subscriber
-    |> charge_credit(value)
-    |> add_recharge_data(value, date)
-  end
-
-  defp charge_credit(
-         %Telephony.Core.Subscriber{subscriber_type: %__MODULE__{} = subscriber_type} =
-           subscriber,
-         value
-       ) do
-    subscriber_type = %{subscriber_type | credits: subscriber_type.credits + value}
-    %{subscriber | subscriber_type: subscriber_type}
-  end
-
-  defp add_recharge_data(
-         %Telephony.Core.Subscriber{subscriber_type: %__MODULE__{} = subscriber_type} =
-           subscriber,
-         value,
-         date
-       ) do
-    new_recharges = subscriber_type.recharges ++ [Recharge.new(value, date)]
-    subscriber_type = %{subscriber_type | recharges: new_recharges}
-    %{subscriber | subscriber_type: subscriber_type}
-  end
-
   defimpl Subscriber, for: Telephony.Core.Prepaid do
     @price_per_minute 1.45
 
@@ -85,6 +59,31 @@ defmodule Telephony.Core.Prepaid do
     defp add_new_call(subscriber_type, time_spent, date) do
       call = Call.new(time_spent, date)
       {subscriber_type, call}
+    end
+
+    # ==============================================================
+    # recharge functions
+
+    def make_recharge(subscriber_type, value, date) do
+      subscriber_type
+      |> charge_credit(value)
+      |> add_recharge_data(value, date)
+    end
+
+    defp charge_credit(
+           subscriber_type,
+           value
+         ) do
+      %{subscriber_type | credits: subscriber_type.credits + value}
+    end
+
+    defp add_recharge_data(
+           subscriber_type,
+           value,
+           date
+         ) do
+      new_recharges = subscriber_type.recharges ++ [Recharge.new(value, date)]
+      %{subscriber_type | recharges: new_recharges}
     end
   end
 end
