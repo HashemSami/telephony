@@ -1,23 +1,30 @@
 defmodule Telephony.Core.SubscriberTest do
   use ExUnit.Case
-  alias Telephony.Core.{Call, Postpaid, Prepaid, Recharge}
+  alias Telephony.Core.{Call, Postpaid, Prepaid, Recharge, Subscriber}
 
   setup do
-    postpaid = %Telephony.Core.Subscriber{
+    postpaid = %Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Postpaid{spent: 0},
       calls: []
     }
 
-    prepaid = %Telephony.Core.Subscriber{
+    prepaid = %Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Prepaid{credits: 10, recharges: []},
       calls: []
     }
 
-    %{postpaid: postpaid, prepaid: prepaid}
+    prepaid_no_credits = %Subscriber{
+      full_name: "Hashe",
+      phone_number: "123",
+      subscriber_type: %Prepaid{credits: 0, recharges: []},
+      calls: []
+    }
+
+    %{postpaid: postpaid, prepaid: prepaid, prepaid_no_credits: prepaid_no_credits}
   end
 
   test "create a prepaid subscriber" do
@@ -29,9 +36,9 @@ defmodule Telephony.Core.SubscriberTest do
     }
 
     # when
-    result = Telephony.Core.Subscriber.new(payload)
+    result = Subscriber.new(payload)
 
-    expect = %Telephony.Core.Subscriber{
+    expect = %Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Prepaid{credits: 0, recharges: []}
@@ -50,9 +57,9 @@ defmodule Telephony.Core.SubscriberTest do
     }
 
     # when
-    result = Telephony.Core.Subscriber.new(payload)
+    result = Subscriber.new(payload)
 
-    expect = %Telephony.Core.Subscriber{
+    expect = %Subscriber{
       full_name: "Hashe",
       phone_number: "123",
       subscriber_type: %Postpaid{spent: 0},
@@ -103,6 +110,18 @@ defmodule Telephony.Core.SubscriberTest do
         }
       ]
     }
+
+    # then
+    assert expect == result
+  end
+
+  test "make a prepaid call with no credits", %{prepaid_no_credits: prepaid} do
+    time_spent = 2
+    date = NaiveDateTime.utc_now()
+
+    result = Subscriber.make_call(prepaid, time_spent, date)
+
+    expect = {:error, "Subscriber does not have enough credits"}
 
     # then
     assert expect == result

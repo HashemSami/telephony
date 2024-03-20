@@ -27,27 +27,26 @@ defmodule Telephony.Core.Subscriber do
   end
 
   def make_call(
-        %__MODULE__{subscriber_type: %Postpaid{} = _subscriber_type} = postpaid,
-        time_spent,
-        date
-      ) do
-    Subscriber.make_call(postpaid, time_spent, date)
-  end
-
-  def make_call(
-        %__MODULE__{subscriber_type: %Prepaid{} = _subscriber_type} = postpaid,
-        time_spent,
-        date
-      ) do
-    Subscriber.make_call(postpaid, time_spent, date)
-  end
-
-  def make_recharge(
-        %__MODULE__{subscriber_type: %Prepaid{} = _subscriber_type} = prepaid,
+        %__MODULE__{subscriber_type: subscriber_type} = subscriber,
         value,
         date
       ) do
-    Subscriber.make_recharge(prepaid, value, date)
+    case Subscriber.make_call(subscriber_type, value, date) do
+      {:error, message} ->
+        {:error, message}
+
+      {type, call} ->
+        %{subscriber | subscriber_type: type, calls: subscriber.calls ++ [call]}
+    end
+  end
+
+  def make_recharge(
+        %__MODULE__{subscriber_type: %Prepaid{} = subscriber_type} = subscriber,
+        value,
+        date
+      ) do
+    type = Subscriber.make_recharge(subscriber_type, value, date)
+    %{subscriber | subscriber_type: type}
   end
 
   def make_recharge(
