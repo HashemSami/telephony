@@ -44,8 +44,6 @@ defmodule Telephony.Core.PostpaidTest do
     result =
       Subscriber.print_invoice(postpaid, calls, year, month)
 
-    IO.inspect(result)
-
     expect = %{
       value_spent: (80 * 1.04) |> Float.round(2),
       calls: [

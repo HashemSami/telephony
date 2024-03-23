@@ -160,4 +160,47 @@ defmodule Telephony.Core.SubscriberTest do
     # then
     assert expect == result
   end
+
+  test "Print postpaid Invoice", %{postpaid: postpaid} do
+    year = 2024
+    month = 2
+
+    result =
+      Subscriber.print_invoice(postpaid, year, month)
+
+    expect = %{
+      subscriber: %Telephony.Core.Subscriber{
+        full_name: "Hashe",
+        phone_number: "123",
+        subscriber_type: %Telephony.Core.Postpaid{spent: 0},
+        calls: []
+      },
+      invoice: %{calls: [], value_spent: 0}
+    }
+
+    assert expect == result
+  end
+
+  test "Print prepaid Invoice", %{prepaid: prepaid} do
+    year = 2024
+    month = 2
+
+    result =
+      Subscriber.print_invoice(prepaid, year, month)
+
+    expect = %{
+      subscriber: %Telephony.Core.Subscriber{
+        full_name: "Hashe",
+        phone_number: "123",
+        subscriber_type: %Telephony.Core.Prepaid{
+          credits: 10,
+          recharges: []
+        },
+        calls: []
+      },
+      invoice: %{calls: [], credits: 10, recharges: []}
+    }
+
+    assert expect == result
+  end
 end

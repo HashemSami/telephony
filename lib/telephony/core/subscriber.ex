@@ -56,4 +56,10 @@ defmodule Telephony.Core.Subscriber do
       ) do
     {:error, "Only prepaid can make a recharge"}
   end
+
+  def print_invoice(%__MODULE__{} = subscriber, year, month) do
+    invoice = Subscriber.print_invoice(subscriber.subscriber_type, subscriber.calls, year, month)
+
+    %{subscriber: subscriber, invoice: invoice}
+  end
 end

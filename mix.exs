@@ -6,6 +6,7 @@ defmodule Telephony.MixProject do
       app: :telephony,
       version: "0.1.0",
       elixir: "~> 1.16",
+      compilers: [:leex] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
@@ -23,7 +24,8 @@ defmodule Telephony.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Telephony.Application, []}
     ]
   end
 
